@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <a href="{{ url_for('zaprimanje.receiving_menu') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Natrag
+    </a>
+    <h1>Najava pošiljaka</h1>
+          <div class="filter-section mb-3">
+              <form method="GET" class="form-inline">
+                  <div class="form-group mx-2">
+                      <select class="form-control" id="delivery_note" name="delivery_note">
+                          <option value="">All</option>
+                          {% for note in delivery_notes %}
+                          <option value="{{ note[0] }}" {% if request.args.get('delivery_note') == note[0] %}selected{% endif %}>
+                              {{ note[0] }}
+                          </option>
+                          {% endfor %}
+                      </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary" onclick="showLoader(this)">
+                      Filter
+                      <div class="loader-container" style="display: none;">
+                          <div class="loader-spinner"></div>
+                      </div>
+                  </button>
+                  <a href="{{ url_for('zaprimanje.announcements') }}" class="btn btn-secondary ml-2">Poništi</a>
+                  {% if request.args.get('delivery_note') %}
+                  <button data-delivery-note="{{ request.args.get('delivery_note') }}" onclick="copyToIncomingGoods(this.dataset.deliveryNote)" class="btn btn-success ml-2">Preuzmi najavu</button>
+                  {% endif %}
+              </form>
+          </div>
+    
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Pošiljka</th>
+                    <th>SSCC</th>
+                    <th>MSI</th>
+                    <th>Artikl</th>
+                    <th>Očekivana količina</th>
+                    <th>JM</th>
+                    <th>Primatelj</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in announcements %}
+                <tr>
+                    <td>{{ item.DeliveryNote }}</td>
+                    <td>{{ item.SSCC }}</td>
+                    <td>{{ item.MSI }}</td>
+                    <td>{{ item.ItemCode }}</td>
+                    <td>{{ item.Quantity }}</td>
+                    <td>{{ item.ItemUOM }}</td>
+                    <td>{{ item.Receiver }}</td>
+                    <td>Najavljeno</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+  <script>
+  function showLoader(element) {
+      element.querySelector('.loader-container').style.display = 'flex';
+  }
+
+  async function copyToIncomingGoods(deliveryNote) {
+    console.log('Starting copy for delivery note:', deliveryNote);
+    
+    const response = await fetch('/zaprimanje/copy-announcement', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ delivery_note: deliveryNote })
+    });
+    
+    const data = await response.json();
+    console.log('Server response:', data);
+    
+    if (data.success) {
+        alert('Uspješno kopirano');
+        window.location.replace('/zaprimanje/receiving-menu');
+    } else {
+        alert('Error: ' + (data.error || 'Unknown error'));
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <div class="scan-header">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_menu') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2>Zaprimljeni artikli</h2>
+    </div>
+
+    <div class="filter-section">
+        <form method="GET" class="mobile-form">
+            <input type="text" name="item_code" class="form-input" placeholder="Šifra artikla" 
+                   value="{{ request.args.get('item_code', '') }}">
+            <input type="text" name="barcode" class="form-input" placeholder="Barkod" 
+                   value="{{ request.args.get('barcode', '') }}">
+            <input type="text" name="sscc" class="form-input" placeholder="SSCC" 
+                   value="{{ request.args.get('sscc', '') }}">
+            <input type="text" name="delivery_note" class="form-input" placeholder="Pošiljka" 
+                   value="{{ request.args.get('delivery_note', '') }}">
+            <input type="text" name="document_msi" class="form-input" placeholder="MSI dokument" 
+                   value="{{ request.args.get('document_msi', '') }}">
+            <button type="submit" class="confirm-btn">Pretraži</button>
+        </form>
+    </div>
+
+    <div class="items-list">
+        {% for item in items %}
+        <div class="item-card {% if item.received_qty > 0 %}
+            {% if item.received_qty < item.quantity %}shortage{% endif %}
+            {% if item.received_qty == item.quantity %}completed{% endif %}
+            {% if item.received_qty > item.quantity %}excess{% endif %}
+        {% endif %}">
+            <div class="item-header">
+                <span class="item-code">{{ item.item_code }}</span>
+                <span class="quantity-info">{{ item.received_qty }}/{{ item.quantity }} {{ item.uom }}</span>
+            </div>
+            <div class="item-description">{{ item.description }}</div>
+            <div class="item-details">
+                <small>SSCC: {{ item.sscc }}</small>
+                <small>Pošiljka: {{ item.delivery_note }}</small>
+                <small>MSI: {{ item.document_msi }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

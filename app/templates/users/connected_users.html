@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="management-container">
+    <div class="management-header">
+        <h1>Trenutno aktivni korisnici</h1>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+    <table class="management-table">
+        <thead>
+            <tr>
+                <th>Korisnik</th>
+                <th>Puno ime</th>
+                <th>Uloga</th>
+                <th>Poslovnica</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in connected_users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.full_name }}</td>
+                <td>{{ user.role.role_name }}</td>
+                <td>{{ user.branch.branch_name if user.branch else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

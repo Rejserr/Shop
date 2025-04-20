@@ -1,0 +1,77 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <div class="scan-header">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_menu') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2>Najava</h2>
+    </div>
+    <div class="filter-section">
+        <form method="GET" class="mobile-form">
+            <select name="delivery_note" class="form-input">
+                <option value="">Odaberi tovarni list</option>
+                {% for note in delivery_notes %}
+                <option value="{{ note[0] }}" {% if request.args.get('delivery_note') == note[0] %}selected{% endif %}>
+                    {{ note[0] }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="confirm-btn">Filter</button>
+        </form>
+        
+        {% if request.args.get('delivery_note') %}
+        <button 
+            data-delivery-note="{{ request.args.get('delivery_note') }}" 
+            onclick="copyToIncomingGoods(this.dataset.deliveryNote)" 
+            class="submit-btn">
+            Preuzmi najavu
+        </button>
+        {% endif %}
+    </div>
+    <div class="items-list">
+        {% for item in announcements %}
+        <div class="item-card">
+            <div class="item-header">
+                <span class="item-code">{{ item.ItemCode }}</span>
+                <span class="quantity-info">{{ item.Quantity }} {{ item.ItemUOM }}</span>
+            </div>
+            <div class="item-description">{{ item.ItemDescription }}</div>
+            <div class="item-details">
+                <small>SSCC: {{ item.SSCC }}</small>
+                <small>MSI: {{ item.MSI }}</small>
+                <small>Primatelj: {{ item.Receiver }}</small>
+                <small>Kupac: {{ item.Customer }}</small>
+            </div>
+            
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+async function copyToIncomingGoods(deliveryNote) {
+    try {
+        const response = await fetch('/mobile/copy-announcement', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ delivery_note: deliveryNote })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert('Uspješno preuzeto');
+            window.location.replace('/mobile/menu');
+        } else {
+            alert('Greška: ' + (data.error || 'Nepoznata greška'));
+        }
+    } catch (error) {
+        console.error('Copy error:', error);
+        alert('Greška pri kopiranju');
+    }
+}
+</script>
+{% endblock %}

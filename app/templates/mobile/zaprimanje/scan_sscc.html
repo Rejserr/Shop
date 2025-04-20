@@ -1,0 +1,65 @@
+{% extends "mobile/base.html" %}
+  {% block content %}
+  <div class="mobile-container">
+    <div class="scan-header">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_menu') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2>Skeniraj SSCC</h2>
+    </div>
+    
+    <form method="POST" class="scan-form">
+        <input type="text" 
+               name="sscc" 
+               id="sscc-input" 
+               class="scan-input" 
+               placeholder="Skeniraj SSCC barkod"
+               style="display: block; margin: 0 auto; width: 80%;"
+               autofocus>
+    </form>
+
+    {% if items %}
+    <div class="action-buttons">
+        <form method="POST" action="{{ url_for('mobile_zaprimanje.mobile_preuzmi_paletu') }}">
+            <input type="hidden" name="sscc" value="{{ sscc }}">
+            <button type="submit" class="confirm-btn">Zaprimanje</button>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="error-popup">
+        SSCC barkod koji ste unijeli nije ispravan.
+    </div>
+    {% endif %}
+
+    {% if items %}
+    <div class="scan-results">
+          {% for item in items %}
+          <div class="item-card">
+              <div class="item-header">
+                  <span class="item-code">{{ item.item_code }}</span>
+                  <span class="quantity-info">
+                    {{ item.quantity }}/{{ item.received_qty|default(0) }} {{ item.uom }}
+                </span>
+              </div>
+              <div class="item-description">{{ item.description }}</div>
+              <div class="item-details">
+                  <small>SSCC: {{ item.sscc }}</small><br>
+                  <small>NP: {{ item.sales_order }}</small>
+                  <small><strong>MSI: {{ item.document_msi }}</small></strong>
+                  <small><strong>Tovarni list: {{ item.delivery_note }}</small></strong><br>
+                  <small><strong>Kupac: {{ item.customer }}</small></strong>
+              </div>
+          </div>
+          {% endfor %}
+      </div>
+
+      <div class="action-buttons">
+          <a href="{{ url_for('mobile_zaprimanje.mobile_pregled_sscc') }}" class="secondary-btn">
+              <i class="fas fa-list"></i> Pregled SSCC
+          </a>
+      </div>
+      {% endif %}
+  </div>
+{% endblock %}

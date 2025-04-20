@@ -1,0 +1,31 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <h1 class="mobile-title">MSI dokument: {{ document_msi }}</h1>
+</div>
+
+<a href="{{ url_for('mobile_zaprimanje.mobile_shipment_report',
+       delivery_note=request.args.get('delivery_note', ''),
+       status_filter=request.args.getlist('status_filter')) }}" 
+class="mobile-button">Natrag</a>
+</div>
+    <div class="mobile-list">
+        {% for item in items %}
+        <div class="mobile-list-item">
+            <div>{{ item.item_code }} - {{ item.description }}</div>
+            <div>Količina: {{ item.quantity }} {{ item.uom }}</div>
+            <div>Zaprimljeno: {{ item.received_qty }}</div>
+            <div>Razlika: {{ item.difference }}</div>
+            <div>Korisnik: {{ item.user_received }}</div>
+            <div class="mobile-status 
+                {% if item.status == 'Zaprimljeno' %}status-success
+                {% elif item.status == 'Parcijalno' %}status-warning
+                {% else %}status-danger{% endif %}">
+                {{ item.status }}
+            </div>
+           
+        </div>
+        {% endfor %}
+   
+{% endblock %}

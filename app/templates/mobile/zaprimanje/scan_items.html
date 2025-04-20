@@ -1,0 +1,169 @@
+{% extends "mobile/base.html" %}
+{% block content %}
+<div class="mobile-container" data-sscc="{{ sscc }}">
+    <div class="scan-header">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_scan_sscc') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2>SSCC: {{ sscc }}</h2>
+        <a onclick="window.location.reload()" class="refresh-btn">
+            <i class="fas fa-sync-alt"></i>
+        </a>
+    </div>
+    <div class="scan-section">
+        <form method="POST" id="scanForm">
+            <input type="hidden" id="selected_item_id" name="selected_item_id">
+            <div class="form-group">
+                <input type="text" 
+                       id="barcode" 
+                       name="barcode" 
+                       class="scan-input" 
+                       placeholder="Scan Barcode"
+                       autofocus>
+            </div>
+
+            <div class="form-group">
+                <input type="text" 
+                       id="artikl" 
+                       name="artikl" 
+                       class="form-input" 
+                       placeholder="Artikl"
+                       readonly>
+            </div>
+
+            <div class="form-group">
+                <input type="text" 
+                       id="naziv" 
+                       name="naziv" 
+                       class="form-input" 
+                       placeholder="Naziv artikla"
+                       readonly>
+            </div>
+
+            <div class="quantity-row">
+                <input type="text" 
+                       id="najavljena" 
+                       name="najavljena" 
+                       class="form-input" 
+                       placeholder="Najavljena količina"
+                       readonly>
+
+                <input type="text" 
+                       id="jm" 
+                       name="jm" 
+                       class="form-input" 
+                       placeholder="JM"
+                       readonly>
+
+                <input type="text" 
+                       id="zaprimljeno" 
+                       name="zaprimljeno" 
+                       class="form-input" 
+                       placeholder="Zaprimljeno"
+                       readonly>
+
+                <input type="number" 
+                       id="kolicina" 
+                       name="kolicina" 
+                       class="form-input quantity-input" 
+                       placeholder="Količina"
+                       step="any"
+                       required>
+            </div>
+            <button type="submit" class="submit-btn">Zaprimi</button>
+        </form>
+    </div>
+    <div id="scanned-item-container" class="scanned-item-section">
+        <div class="scanned-item">
+            <div class="item-header">
+                <span id="scanned-item-code"></span>
+                <span id="scanned-item-qty"></span>
+            </div>
+            <div id="scanned-item-desc" class="item-description"></div>
+            <div class="item-details">
+                <span id="scanned-item-sscc"></span>
+                <span id="scanned-item-received"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="items-list">
+        {% if last_scanned %}
+        <!-- Last scanned item card -->
+        <div class="item-card last-scanned {% if last_scanned.received_qty > 0 %}
+        {% if last_scanned.received_qty < last_scanned.quantity %}shortage{% endif %}
+        {% if last_scanned.received_qty == last_scanned.quantity %}completed{% endif %}
+        {% if last_scanned.received_qty > last_scanned.quantity %}excess{% endif %}
+    {% endif %}" data-item-code="{{ last_scanned.item_code }}">
+            <!-- Row 1: Item Code -->
+            <div class="item-row">
+                <span class="item-code">{{ last_scanned.item_code }}</span>
+            </div>
+            
+            <!-- Row 2: Quantities and UOM -->
+            <div class="item-row quantity-row">
+                <span class="expected">Najavljeno: {{ last_scanned.quantity }}</span>
+                <span class="received">Zaprimljeno: {{ last_scanned.received_qty|default(0) }} {{ last_scanned.uom }}</span>
+            </div>
+            
+            <!-- Row 3: Description -->
+            <div class="item-row">
+                <div class="item-description">{{ last_scanned.description }}</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% for item in items %}
+            {% if not last_scanned or item.id != last_scanned.id %}
+            <!-- Regular item cards -->
+            <div class="item-card {% if item.received_qty > 0 %}
+            {% if item.received_qty < item.quantity %}shortage{% endif %}
+            {% if item.received_qty == item.quantity %}completed{% endif %}
+            {% if item.received_qty > item.quantity %}excess{% endif %}
+        {% endif %}" data-item-code="{{ item.item_code }}">
+                <!-- Row 1: Item Code -->
+                <div class="item-row">
+                    <span class="item-code">{{ item.item_code }}</span>
+                </div>
+                
+                <!-- Row 2: Quantities and UOM -->
+                <div class="item-row quantity-row">
+                    <span class="expected">Najavljeno: {{ item.quantity }}</span>
+                    <span class="received">Zaprimljeno: {{ item.received_qty|default(0) }} {{ item.uom }}</span>
+                </div>
+                
+                <!-- Row 3: Description -->
+                <div class="item-row">
+                    <div class="item-description">{{ item.description }}</div>
+                    <div class="item-details"><span>SSCC: {{ item.sscc }}</span></div>
+                    {% if item.order_type == 'WEB' %}
+                    <span style="background-color: #9fc0df">Vrsta naloga:<strong> {{ item.order_type }}</strong></span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+    
+    <div class="action-buttons">
+        <button onclick="completeReceiving()" class="complete-btn">
+            <i class="fas fa-check"></i> Završi zaprimanje
+        </button>
+    </div>
+    <div id="itemSelectorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Item</h3>
+                <span class="close-modal">×</span>
+            </div>
+            <div id="itemList"></div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='mobile/js/mobile_scanning.js') }}"></script>
+{% endblock %}
+
+
+
+

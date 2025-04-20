@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <a href="{{ url_for('zaprimanje.receiving_menu') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Natrag
+    </a>
+    <h1>Zatvaranje dokumenta</h1>
+    <div class="filter-section">
+        <form method="GET" class="form-inline">
+            <div class="form-group">
+                <select name="delivery_note" id="delivery_note" class="form-control">
+                    <option value="">Odaberi pošiljku</option>
+                    {% for note in delivery_notes %}
+                    <option value="{{ note.delivery_note }}" {% if selected_note == note.delivery_note %}selected{% endif %}>
+                        {{ note.delivery_note }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-check mx-2">
+                <input type="checkbox" class="form-check-input" id="show_differences" name="show_differences"
+                       {% if request.args.get('show_differences') %}checked{% endif %}>
+                <label class="form-check-label" for="show_differences">Prikaži razlike</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Pretraži</button>
+        </form>
+    </div>
+
+    {% if items %}
+    <div class="table-responsive">
+        <table class="management-table">
+            <thead>
+                <tr>
+                    <th>Pošiljka</th>
+                    <th>Dokument</th>
+                    <th>SSCC</th>
+                    <th>Šifra artikla</th>
+                    <th>Naziv artikla</th>
+                    <th>Količina</th>
+                    <th>Zaprimljena količina</th>
+                    <th>Razlika</th>
+                    <th>Status</th>
+                    <th>Akcija</th>
+                  
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr {% if item.quantity - item.received_qty != 0 %}class="difference-row"{% endif %}>
+                    <td>{{ item.delivery_note }}</td>
+                    <td>{{ item.document_msi }}</td>
+                    <td>{{ item.sscc }}</td>
+                    <td>{{ item.item_code }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.received_qty }}</td>
+                    <td>{{ item.received_qty - item.quantity }}</td>
+                    <td>
+                        {% if item.received_qty - item.quantity == 0 %}
+                            <span class="status-ok">Zaprimljeno</span>
+                        {% elif item.received_qty - item.quantity  > 0 %}
+                            <span class="status-minus">Višak</span>
+                        {% else %}
+                            <span class="status-plus">Manjak</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('zaprimanje.edit_incoming', id=item.id) }}" class="btn btn-edit btn-sm">
+                            <i class="fas fa-edit"></i> Uredi
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="actions">
+            <button onclick="closeDocument('{{ selected_note }}')" class="btn btn-primary">
+                Zatvori dokument
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function closeDocument(deliveryNote) {
+        if (confirm('Jeste li sigurni da želite zatvoriti ovaj dokument?')) {
+            fetch(`/zaprimanje/close-document/${deliveryNote}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Dokument je uspješno zatvoren');
+                    window.location.href = '/zaprimanje/receiving-menu';
+                } else {
+                    throw new Error(data.error || 'Nepoznata greška');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Greška prilikom zatvaranja dokumenta: ' + error.message);
+            });
+        }
+    }
+    </script>
+    
+{% endblock %}

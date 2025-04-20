@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="management-header">
+        <h1>Zaprimanje</h1>
+        <div class="action-buttons">
+            <a href="{{ url_for('zaprimanje.receiving_menu') }}" class="btn btn-primary">
+                <i class="fas fa-warehouse"></i> Zaprimanje robe
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Delivery Note</th>
+                    <th>SSCC</th>
+                    <th>Sales Order</th>
+                    <th>Item Code</th>
+                    
+                    <th>Expected Qty</th>
+                    <th>Received Qty</th>
+                    <th>Difference</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in goods %}
+                <tr>
+                    <td>{{ item.delivery_note }}</td>
+                    <td>{{ item.sscc }}</td>
+                    <td>{{ item.sales_order }}</td>
+                    <td>{{ item.item_code }}</td>
+                   
+                    <td>{{ item.quantity }} {{ item.uom }}</td>
+                    <td>{{ item.received_qty }} {{ item.uom }}</td>
+                    <td>{{ item.difference }}</td>
+                    <td>
+                        <span class="status-badge {% if item.difference == 0 %}status-completed{% else %}status-pending{% endif %}">
+                            {{ item.status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('zaprimanje.edit_incoming', id=item.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="{{ url_for('zaprimanje.view_incoming', id=item.id) }}" class="btn btn-sm btn-info">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

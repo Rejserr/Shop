@@ -1,0 +1,138 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <div class="scan-header">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_menu') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2>Tovarni list {% if delivery_note %} - {{ delivery_note }}{% endif %}</h2>
+        <a onclick="window.location.href = `/mobile/bulk-receipt?delivery_note=${document.querySelector('[name=delivery_note]').value}`" class="refresh-btn">
+            <i class="fas fa-sync-alt"></i>
+        </a>
+    </div>
+    {% if not delivery_note %}
+    <form method="POST" class="scan-form">
+        <input type="text" 
+               name="delivery_note" 
+               class="scan-input" 
+               placeholder="Unesi broj Tovarnog lista"
+               required
+               autofocus>
+        <button type="submit" class="confirm-btn">Pretraži</button>
+    </form>
+    {% else %}
+    <div class="scan-section">
+        <form method="POST" id="scanForm">
+            <input type="hidden" id="item_id" name="item_id">
+            <input type="hidden" name="delivery_note" value="{{ delivery_note }}">
+            <div class="form-group">
+                <input type="text" 
+                       id="barcode" 
+                       name="barcode" 
+                       class="scan-input" 
+                       placeholder="Scan Barcode"
+                       autofocus>
+            </div>
+
+            <div class="form-group">
+                <input type="text" 
+       id="artikl" 
+       name="artikl" 
+       class="form-input" 
+       placeholder="Artikl"
+       readonly>
+                       
+            </div>
+
+            <div class="form-group">
+                <input type="text" 
+                       id="naziv" 
+                       name="naziv" 
+                       class="form-input" 
+                       placeholder="Naziv artikla"
+                       readonly>
+            </div>
+
+            <div class="quantity-row">
+                <input type="text" 
+                       id="najavljena" 
+                       name="najavljena" 
+                       class="form-input" 
+                       placeholder="Najavljena količina"
+                       readonly>
+
+                <input type="text" 
+                       id="jm" 
+                       name="jm" 
+                       class="form-input" 
+                       placeholder="JM"
+                       readonly>
+
+                <input type="text" 
+                       id="zaprimljeno" 
+                       name="zaprimljeno" 
+                       class="form-input" 
+                       placeholder="Zaprimljeno"
+                       readonly>
+
+                <input type="number" 
+                       id="kolicina" 
+                       name="kolicina" 
+                       class="form-input quantity-input" 
+                       placeholder="Količina"
+                       step="any"
+                       required>
+            </div>
+            <button type="submit" class="submit-btn">Zaprimi</button>
+          
+        </form>
+        <script>
+            document.getElementById('barcode').addEventListener('input', function(e) {
+                console.log('Input detected:', e.target.value);
+                if (e.target.value.length >= 3) {
+                    fetch(`/mobile/api/bulk-lookup-item?barcode=${e.target.value}&delivery_note=${document.querySelector('[name="delivery_note"]').value}`)
+                    .then(response => response.json())
+                    .then(data => console.log('API response:', data));
+                }
+            });
+            </script>
+    </div>
+
+    <div id="scanned-item"></div>
+
+    <div class="items-list">
+        {% for item in items %}
+        <div class="item-card {% if item.received_qty > 0 %}
+            {% if item.received_qty < item.quantity %}shortage{% endif %}
+            {% if item.received_qty == item.quantity %}completed{% endif %}
+            {% if item.received_qty > item.quantity %}excess{% endif %}
+        {% endif %}">
+            <div class="item-row">
+                <span class="item-code">{{ item.item_code }}</span>
+            </div>
+            <div class="item-row quantity-row">
+                <span class="expected">Najavljeno: {{ item.quantity }}</span>
+                <span class="received">Zaprimljeno: {{ item.received_qty|default(0) }} {{ item.uom }}</span>
+            </div>
+            <div class="item-row">
+                <div class="item-description">{{ item.description }}</div>
+                <div class="item-details">
+                    <span>SSCC: {{ item.sscc }}</span>
+                    <span>MSI: {{ item.document_msi }}</span>
+                    <span>Kupac: {{ item.customer }}</span>
+                    {% if item.order_type == 'WEB' %}
+                    <span style="background-color: #9fc0df">Vrsta naloga:<strong> {{ item.order_type }}</strong></span>
+                    {% endif %}
+                   
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+<script src="{{ url_for('static', filename='mobile/js/bulk_receipt.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+

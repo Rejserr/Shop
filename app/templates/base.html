@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}{% endblock %} - Shops Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% block full_page %}
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='img/FeroTermLogo.png') }}" alt="FeroTerm Logo">
+                <h2>Zaprimanje robe</h2>
+            </div>
+            <div class="nav-items">
+                {% for item in get_nav_items(current_user) %}
+                <a href="{{ item.url }}" class="nav-item">
+                    <i class="{{ item.icon }}"></i>
+                    <span>{{ item.text|safe }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="sidebar-footer">
+                {% if current_user.is_authenticated %}
+                <div class="user-info">
+                    <span>{{ current_user.full_name }}</span>
+                    <small>{{ current_user.role.role_name if current_user.role else 'No Role' }}</small>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+                {% else %}
+                <div class="user-info">
+                    <span>Korisnik</span>
+                    <small>Nije logiran</small>
+                </div>
+                {% endif %}
+            </div>
+        </nav>
+        
+        <main class="content" id="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% endblock %}
+
+   
+<script src="{{ url_for('static', filename='js/zaprimanje.js') }}"></script>
+
+
+<script>
+    window.addEventListener('beforeunload', function(e) {
+        navigator.sendBeacon('/auth/browser-close');
+    });
+    
+    // Register service worker for offline support
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/static/js/service-worker.js')
+                .then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                })
+                .catch(function(error) {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+        });
+        
+        // Monitor connectivity and notify the service worker
+        window.addEventListener('online', function() {
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'CONNECTIVITY_CHANGE',
+                    online: true
+                });
+            }
+        });
+        
+        window.addEventListener('offline', function() {
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'CONNECTIVITY_CHANGE',
+                    online: false
+                });
+            }
+        });
+    }
+    
+    // Ping server to keep session alive
+    function pingServer() {
+        fetch('/ping', { method: 'GET', cache: 'no-store' })
+            .catch(function(error) {
+                console.log('Ping failed, but continuing: ', error);
+            });
+    }
+    
+    // Ping every 25 seconds to keep session alive
+    setInterval(pingServer, 25000);
+
+
+</script>
+
+</body>
+</html>
+
+

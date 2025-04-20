@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="user-settings">
+    <h1>User Settings - {{ user.username }}</h1>
+    <form method="POST">
+        <div class="settings-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="settings-input" value="{{ user.email }}">
+        </div>
+        <div class="settings-group">
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name" class="settings-input" value="{{ user.full_name }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </form>
+</div>
+{% endblock %}

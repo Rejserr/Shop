@@ -1,0 +1,31 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <div class="scan-header">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_menu') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2>Pregled SSCC</h2>
+    </div>
+
+    <div class="items-list">
+        {% for item in items %}
+        <div class="item-card">
+            <div class="item-header">
+                <span class="item-code">{{ item.item_code }}</span>
+                <span class="quantity-info">
+                    {{ item.received_qty|default(0) }} / {{ item.quantity }} {{ item.uom }}
+                </span>
+            </div>
+            <div class="item-description">{{ item.description }}</div>
+            <div class="item-details">
+                <small>SSCC: {{ item.sscc }}</small>
+                <small>Tovarni list: {{ item.delivery_note }}</small>
+                <small>Kupac: {{ item.customer }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

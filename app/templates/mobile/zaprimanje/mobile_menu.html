@@ -1,0 +1,69 @@
+{% extends "mobile/base.html" %}
+  {% block content %}
+  <div class="mobile-menu">
+      <div class="menu-header">
+          <img src="{{ url_for('static', filename='img/FeroTermLogo.png') }}" alt="FeroTerm Logo" class="mobile-menu-logo">
+      </div>
+    
+    <div class="menu-items">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_scan_sscc') }}" class="menu-item">
+            <i class="fas fa-barcode"></i>
+            <span>Zaprimanje SSCC</span>
+        </a>
+
+        <div class="menu-option">
+            <a href="{{ url_for('mobile_zaprimanje.bulk_receipt') }}" class="menu-link">
+                <i class="fas fa-barcode"></i>
+                <span>Zaprimanje po Tovarnom listu</span>
+            </a>
+        </div>
+
+        <a href="{{ url_for('mobile_zaprimanje.mobile_preuzete_najave') }}" class="menu-item">
+            <i class="fas fa-check"></i>
+            <span>Preuzete najave</span>
+        </a>
+
+        <a href="{{ url_for('mobile_zaprimanje.mobile_close_document_view') }}" class="menu-item">
+            <i class="fas fa-file-alt"></i>
+            <span>Zatvaranje dokumenta</span>
+        </a>
+                  <a href="{{ url_for('mobile_zaprimanje.mobile_announcements') }}" class="menu-item" onclick="showLoader(this)">
+                      <i class="fas fa-bullhorn"></i>
+                      <span>Najava</span>
+                      <div class="loader-container" style="display: none;">
+                          <div class="loader-spinner"></div>
+                      </div>
+                  </a>
+
+                  <script>
+                  function showLoader(element) {
+                      element.querySelector('.loader-container').style.display = 'flex';
+                  }
+                  </script>
+
+                  
+        <a href="{{ url_for('mobile_zaprimanje.mobile_document_items') }}" class="menu-item">
+            <i class="fas fa-list"></i>
+            <span>Artikli po dokumentu</span>
+        </a>
+
+        <a href="{{ url_for('mobile_zaprimanje.mobile_received_items') }}" class="menu-item">
+            <i class="fas fa-boxes"></i>
+            <span>Zaprimljeni artikli</span>
+        </a>
+
+        <a href="{{ url_for('mobile_zaprimanje.mobile_shipment_report') }}" class="menu-item">
+            <i class="fas fa-truck-loading"></i>
+            <span>Status MSI dokumenta</span>
+        </a>
+    </div>        
+
+        <a href="{{ url_for('auth.mobile_logout') }}" class="menu-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Odjava</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+

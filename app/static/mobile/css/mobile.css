@@ -1,0 +1,80 @@
+.mobile-container {
+    padding: 10px;
+    max-width: 100%;
+}
+
+.scan-header {
+    background: #007bff;
+    color: white;
+    padding: 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.scan-form {
+    margin-top: 60px;
+}
+
+.scan-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 20px;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+}
+
+.scan-results {
+    margin-top: 10px;
+}
+
+.mobile-menu {
+    height: 100vh;
+    background: #f8f9fa;
+}
+
+.menu-header {
+    background: #007bff;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.menu-items {
+    padding: 15px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-decoration: none;
+    color: #333;
+}
+
+.menu-item i {
+    font-size: 24px;
+    margin-right: 15px;
+    color: #007bff;
+}
+
+.scan-result-item {
+    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.quantity-input {
+    font-size: 24px;
+    padding: 15px;
+    width: 100%;
+    margin: 10px 0;
+}

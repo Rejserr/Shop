@@ -1,0 +1,5 @@
+Stop service
+python service_wrapper.py stop if not stop 
+	tasklist | findstr python
+	taskkill /F /PID 11556
+python service_wrapper.py start

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Uredi zaprimljenu količinu</h1>
+    <div class="sscc-card">
+        <div class="sscc-header">
+            <span class="sscc-label">SSCC Informacije</span>
+        </div>
+        <form method="POST" class="sscc-form">
+            <!-- Add a hidden input to store the referrer URL -->
+            <input type="hidden" id="referrer" name="referrer" value="{{ request.referrer }}">
+            
+            <div class="form-grid">
+                <div class="form-group ">
+                    <label for="delivery_note">Otpremnica</label>
+                    <input type="text" id="delivery_note" name="delivery_note" value="{{ item.delivery_note }}" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sscc">SSCC</label>
+                    <input type="text" id="sscc" name="sscc" value="{{ item.sscc }}" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="item_code">Šifra artikla</label>
+                    <input type="text" id="item_code" name="item_code" value="{{ item.item_code }}" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Naziv artikla</label>
+                    <input type="text" id="description" name="description" value="{{ item.description }}" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity">Količina</label>
+                    <input type="number" id="quantity" name="quantity" value="{{ item.quantity }}" readonly>
+                </div>
+
+                <div class="form-group highlight">
+                    <label for="received_qty">Zaprimljena količina</label>
+                    <input type="number" id="received_qty" name="received_qty" value="{{ item.received_qty }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="uom">Jedinica mjere</label>
+                    <input type="text" id="uom" name="uom" value="{{ item.uom }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="uom">Dokument MSI</label>
+                    <input type="text" id="uom" name="uom" value="{{ item.document_msi }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="uom">Kupac</label>
+                    <input type="text" id="uom" name="uom" value="{{ item.customer }}" readonly>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="button primary" onclick="saveAndReturn(event)">Spremi promjene</button>
+                <a href="javascript:history.back()" class="button secondary">Odustani</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function saveAndReturn(event) {
+    event.preventDefault();
+    const form = event.target.closest('form');
+    const referrer = document.getElementById('referrer').value;
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form)
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = referrer;
+        }
+    });
+}
+</script>
+<style>
+.sscc-card {
+    background: rgb(255, 255, 255);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 1200px;  /* Increased from 800px */
+    width: 95%;        /* Makes it responsive */
+    
+    
+}
+
+
+.sscc-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+   
+}
+
+.sscc-label {
+    font-size: 1.2em;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;  /* Increased from 20px */
+    margin-bottom: 40px;
+}
+
+.form-group {
+    margin-bottom: 30px;  /* Increased from 20px */
+    padding: 0 15px;  /* Added horizontal padding */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px;  /* Increased from 12px */
+    margin-top: 10px;  /* Added top margin */
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1em;
+}
+
+.form-group input[readonly] {
+    background-color: #f0f0f0;
+    color: #666666;
+    cursor: not-allowed;
+    border-color: #dcdcdc;
+}
+
+
+.form-group input:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    outline: none;
+    font-weight: bolder;
+}
+
+
+
+.highlight input {
+    border-color: #4299e1;
+    background-color: #ebf8ff;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.button.primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(79, 70, 229, 0.2);
+}
+
+.button.secondary {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.button.secondary:hover {
+    background: #e2e8f0;
+    transform: translateY(-2px);
+}
+ 
+</style>
+{% endblock %}

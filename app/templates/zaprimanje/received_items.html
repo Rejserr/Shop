@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Add this at the top -->
+    <div class="header-actions">
+        <a href="{{ url_for('zaprimanje.receiving_menu') }}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Natrag
+        </a>
+    </div>
+<div class="container">
+    <h1>Zaprimljeni artikli</h1>
+    
+    <div class="search-container">
+        <form method="GET" class="search-form">
+         <div class="search-fields">
+             <div class="input-group">
+                 <input type="text" name="item_code" class="form-input" placeholder="Šifra artikla" 
+                        value="{{ request.args.get('item_code', '') }}">
+             </div>
+             <div class="input-group">
+                 <input type="text" name="sscc" class="form-input {% if not request.args.get('item_code') %}readonly-field{% endif %}" 
+                        placeholder="SSCC" value="{{ request.args.get('sscc', '') }}"
+                        {% if not request.args.get('item_code') %}readonly{% endif %}>
+             </div>
+             <div class="input-group">
+                 <input type="text" name="delivery_note" class="form-input {% if not request.args.get('item_code') %}readonly-field{% endif %}" 
+                        placeholder="Pošiljka" value="{{ request.args.get('delivery_note', '') }}"
+                        {% if not request.args.get('item_code') %}readonly{% endif %}>
+             </div>
+             <div class="input-group">
+                 <input type="text" name="document_msi" class="form-input {% if not request.args.get('item_code') %}readonly-field{% endif %}" 
+                        placeholder="Dokument MSI" value="{{ request.args.get('document_msi', '') }}"
+                        {% if not request.args.get('item_code') %}readonly{% endif %}>
+             </div>
+             
+         </div>
+         <div class="button-group">
+                <button type="submit" class="btn-search">Pretraži</button>
+                <a href="{{ url_for('zaprimanje.received_items') }}" class="btn-reset">Poništi</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Pošiljka</th>
+                    <th>SSCC</th>
+                    <th>Dokument MSI</th>
+                    <th>Artikl</th>
+                    <th>Naziv artikla</th>
+                    <th>JM</th>
+                    <th>Količina</th>
+                    <th>Zaprimljena količina</th>
+                    <th>Razlike</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.delivery_note }}</td>
+                    <td>{{ item.sscc }}</td>
+                    <td>{{ item.document_msi }}</td>
+                    <td>{{ item.item_code }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.uom }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.received_qty }}</td>
+                    <td>{{ item.received_qty - item.quantity }}</td>
+                    <td>
+                        {% if item.quantity == item.received_qty %}
+                            <span class="badge badge-success" style="background-color: #28a745;">Zaprimljeno</span>
+                        {% elif item.received_qty > item.quantity %}
+                            <span class="badge badge-warning" style="background-color: #0056b3;">Višak</span>
+                        {% elif item.received_qty < item.quantity %}
+                            <span class="badge badge-danger" style="background-color: #dc3545;">Manjak</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<style>
+    .search-container {
+        background: white;
+        padding: 25px 40px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin: 30px 50px;
+    }
+    
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+    
+    .search-fields {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 25px;
+        padding: 0 20px;
+    }
+    
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        margin: 0 10px;
+    }
+    
+    .form-input {
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-input:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        outline: none;
+    }
+    
+    .button-group {
+        display: flex;
+        gap: 20px;
+        justify-content: flex-start;
+    }
+    
+    .btn-search, .btn-reset {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+    
+    .btn-search {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        color: white;
+        border: none;
+    }
+    
+    .btn-reset {
+        background: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .btn-search:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+    
+    .btn-reset:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+    
+    .page-title {
+        color: #1f2937;
+        font-size: 1.875rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .readonly-field {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+  /* Add this to your existing styles */
+  .btn-back {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        background: #f3f4f6;
+        color: #4b5563;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+    }
+
+    .btn-back i {
+        margin-right: 8px;
+    }
+
+    .btn-back:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+        color: #374151;
+        text-decoration: none;
+    }
+
+    .header-actions {
+        margin: 20px 0;
+    }
+
+    </style>
+
+<script>
+    document.querySelector('input[name="item_code"]').addEventListener('input', function(e) {
+        const inputs = document.querySelectorAll('input:not([name="item_code"])');
+        inputs.forEach(input => {
+            if (e.target.value) {
+                input.removeAttribute('readonly');
+                input.classList.remove('readonly-field');
+            } else {
+                input.setAttribute('readonly', true);
+                input.classList.add('readonly-field');
+            }
+        });
+    });
+    </script>
+    
+
+
+{% endblock %}

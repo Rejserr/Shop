@@ -1,0 +1,43 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <div class="scan-header">
+        <h2>Documents</h2>
+    </div>
+
+    <div class="filter-section">
+        <input type="text" 
+               id="delivery-note-filter" 
+               class="scan-input" 
+               placeholder="Search delivery note">
+        <input type="text" 
+               id="document-msi-filter" 
+               class="scan-input" 
+               placeholder="Search MSI document">
+    </div>
+
+    <div class="documents-list" id="documents-container">
+        {% for doc in documents %}
+        <div class="document-card">
+            <div class="document-header">
+                <span class="delivery-note">{{ doc.delivery_note }}</span>
+                <span class="document-status {{ doc.status|lower }}">{{ doc.status }}</span>
+            </div>
+            <div class="document-details">
+                <div>MSI: {{ doc.document_msi }}</div>
+                <div>Items: {{ doc.item_count }}</div>
+            </div>
+            <div class="document-actions">
+                <button onclick="viewDocument('{{ doc.delivery_note }}')" class="action-btn">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button onclick="closeDocument('{{ doc.delivery_note }}')" class="action-btn close-btn">
+                    <i class="fas fa-check"></i> Close
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

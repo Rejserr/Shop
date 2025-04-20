@@ -1,0 +1,61 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <div class="scan-header">
+        <div class="header-info">
+            <h2>{{ document.delivery_note }}</h2>
+            <span class="document-msi">{{ document.document_msi }}</span>
+        </div>
+    </div>
+
+    <div class="items-list">
+        {% for item in items %}
+        <div class="item-card {% if item.received_qty >= item.quantity %}completed{% endif %}">
+            <div class="item-header">
+                <span class="item-code">{{ item.item_code }}</span>
+                <div class="quantity-info">
+                    <span class="expected">{{ item.quantity }}</span>
+                    <span class="received">{{ item.received_qty|default(0) }}</span>
+                    <span class="uom">{{ item.uom }}</span>
+                </div>
+            </div>
+            <div class="item-details">
+                <p>{{ item.description }}</p>
+                <div class="difference-info {% if item.difference != 0 %}has-difference{% endif %}">
+                    Difference: {{ item.difference }}
+                </div>
+            </div>
+            <div class="item-actions">
+                <button onclick="editQuantity('{{ item.id }}')" class="edit-btn">
+                    <i class="fas fa-edit"></i> Uredi
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="document-summary">
+        <div class="summary-info">
+            <span>Total Items: {{ items|length }}</span>
+            <span>Completed: {{ completed_count }}</span>
+        </div>
+        {% if can_close %}
+        <button onclick="closeDocument('{{ document.delivery_note }}')" class="close-btn">
+            <i class="fas fa-check"></i> Zatvori dokument
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<div id="edit-modal" class="modal">
+    <div class="modal-content">
+        <h3>Edit Quantity</h3>
+        <input type="number" id="edit-quantity" class="quantity-input" step="any">
+        <div class="modal-actions">
+            <button onclick="saveQuantity()" class="confirm-btn">Save</button>
+            <button onclick="closeModal()" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

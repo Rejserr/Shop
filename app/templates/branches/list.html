@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="branches-form-container">
+    <div class="branches-management-header">
+        <h1>Poslovnice</h1>
+        <div class="action-buttons">
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <a href="{{ url_for('branches.create') }}" class="btn btn-primary">➕ Nova poslovnica</a>
+        </div>
+        
+    </div>
+    <div class="branches-table-responsive">
+        <table class="branches-table table-striped">
+            <thead>
+                <tr>
+                            <th class="col-branch-code">PJ</th>
+                            <th class="col-name">Naziv</th>
+                            <th class="col-address">Adresa</th>
+                            <th class="col-city">Grad</th>
+                            
+                            <th class="col-phone">Telefon</th>
+                            <th class="col-email">Email</th>
+                            <th class="col-actions">Opcije</th>   
+                </tr>
+            </thead>
+            <tbody>
+                {% for branch in branches %}
+                <tr>
+                    <td>{{ branch.branch_code }}</td>
+                    <td>{{ branch.branch_name }}</td>
+                    <td>{{ branch.address }}</td>
+                    <td>{{ branch.city }}</td>
+                   
+                    <td>{{ branch.phone }}</td>
+                    <td>{{ branch.email }}</td>
+                    <td>
+                        <a href="{{ url_for('branches.edit', id=branch.id) }}" class="btn btn-sm btn-primary">Uredi</a>
+                                            <form method="POST" action="{{ url_for('branches.delete', id=branch.id) }}" style="display: inline;">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Izbriši</button>
+                                            </form>
+                                        </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

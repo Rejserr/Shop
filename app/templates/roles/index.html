@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Role Management{% endblock %}
+
+{% block content %}
+<h1>Prava korisnika</h1>
+<a href="{{ url_for('roles.create') }}" class="button">Create New Role</a>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for role in roles %}
+        <tr>
+            <td>{{ role.name }}</td>
+            <td>
+                <a href="{{ url_for('roles.edit', id=role.id) }}" class="button small">Edit</a>
+                <form method="POST" action="{{ url_for('roles.delete', id=role.id) }}" style="display: inline;">
+                    <button type="submit" class="button small danger" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

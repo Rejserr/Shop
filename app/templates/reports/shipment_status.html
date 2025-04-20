@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Status MSI dokumenta po tovarnom listu</h1>
+          <div class="search-container">
+              <form method="GET" class="search-form">
+                  <div class="search-fields">
+                      <div class="input-group">
+                          <input type="text" name="delivery_note" class="form-input" 
+                       placeholder="Unesi tovarni list" value="{{ request.args.get('delivery_note', '') }}">
+                      </div>
+            
+                      <div class="filter-checkboxes">
+                          <label class="checkbox-container">
+                              <input type="checkbox" name="status_filter" value="Zaprimljeno" 
+                           {% if 'Zaprimljeno' in selected_statuses %}checked{% endif %}>
+                              <span class="checkbox-label">Zaprimljen</span>
+                          </label>
+                          <label class="checkbox-container">
+                              <input type="checkbox" name="status_filter" value="Parcijalno"
+                           {% if 'Parcijalno' in selected_statuses %}checked{% endif %}>
+                              <span class="checkbox-label">Parcijalno zaprimljen</span>
+                          </label>
+                          <label class="checkbox-container">
+                              <input type="checkbox" name="status_filter" value="Nije zaprimljeno"
+                           {% if 'Nije zaprimljeno' in selected_statuses %}checked{% endif %}>
+                              <span class="checkbox-label">Nije zaprimljen</span>
+                          </label>
+                      </div>
+            
+                      <!-- Add print button -->
+                      <div class="print-options">
+                          <button type="button" id="print-button" class="btn-print">
+                              <i class="fas fa-print"></i> Printaj označene
+                          </button>
+                          <label class="checkbox-container">
+                              <input type="checkbox" id="show-printed" name="show_printed" 
+                           {% if request.args.get('show_printed', 'true') == 'true' %}checked{% endif %}>
+                              <span class="checkbox-label">Prikaži isprintane</span>
+                          </label>
+                      </div>
+                  </div>
+                  <div class="button-group">
+                      <button type="submit" class="btn-search">Pretraži</button>
+                      <a href="{{ url_for('reports.shipment_status') }}" class="btn-reset">Resetiraj</a>
+                  </div>
+              </form>        
+          </div>
+          <div class="table-responsive">
+    {% if is_search_performed %}
+        {% if shipments %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>Tovarni list</th>
+                        <th>Dokument MSI/MSM</th>
+                        <th>Status</th>
+                        <th>Poslovnica</th>
+                        <th>Print status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in shipments %}
+                    <tr data-document="{{ item.document_msi }}" data-delivery="{{ item.delivery_note }}">
+                        <td>
+                            {% if item.status in ['Zaprimljeno', 'Parcijalno'] %}
+                            <input type="checkbox" class="document-select" 
+                                   data-document="{{ item.document_msi }}" 
+                                   data-printed="{{ item.printed|default(0) }}">
+                            {% endif %}
+                        </td>
+                        <td onclick="goToDocument('{{item.document_msi}}')" style="cursor: pointer;">{{ item.delivery_note }}</td>
+                        <td onclick="goToDocument('{{item.document_msi}}')" style="cursor: pointer;">
+                            {% if item.document_msi == 'NULL' %}
+                                <span class="badge badge-secondary">Nije kreiran MSI dokument</span>
+                            {% else %}
+                                {{ item.document_msi }}
+                            {% endif %}
+                        </td>
+                        <td onclick="goToDocument('{{item.document_msi}}')" style="cursor: pointer;">
+                            {% if item.status == 'Zaprimljeno' %}
+                                <span class="badge badge-success">Zaprimljen</span>
+                            {% elif item.status == 'Parcijalno' %}
+                                <span class="badge badge-warning">Parcijalno zaprimljen</span>
+                            {% else %}
+                                <span class="badge badge-danger">Nije zaprimljen</span>
+                            {% endif %}
+                        </td>
+                        <td onclick="goToDocument('{{item.document_msi}}')" style="cursor: pointer;">{{ item.Poslovnica }}</td>
+                        <td>
+                            {% if item.printed %}
+                                <span class="badge badge-info">Isprintano</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            {% if not show_all and shipments|length >= 2000 %}
+            <div class="text-center mt-3">
+                <form method="GET" class="d-inline">
+                    <!-- Preserve existing filters -->
+                    {% for status in selected_statuses %}
+                    <input type="hidden" name="status_filter" value="{{ status }}">
+                    {% endfor %}
+                    <input type="hidden" name="delivery_note" value="{{ request.args.get('delivery_note', '') }}">
+                    <input type="hidden" name="show_all" value="true">
+                    <button type="submit" class="btn btn-primary">Prikaži sve stavke</button>
+                </form>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                Nema rezultata za traženi tovarni list.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            Unesite tovarni list za pretragu.
+        </div>
+    {% endif %}
+</div>
+
+<!-- Print Format Modal -->
+<div id="print-format-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Odaberite vrstu ispisa</h3>
+        </div>
+        <div class="modal-body">
+            <div class="modal-buttons">
+                <button id="detailed-print-btn" class="btn-primary">Detaljan ispis</button>
+                <button id="summary-print-btn" class="btn-secondary">Sumirani ispis</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function goToDocument(msi) {
+        const currentDeliveryNote = new URLSearchParams(window.location.search).get('delivery_note');
+        const selectedFilters = new URLSearchParams(window.location.search).getAll('status_filter');
+        const filterParams = selectedFilters.map(filter => `status_filter=${filter}`).join('&');
+        window.location = `/reports/document-items/${msi}?delivery_note=${currentDeliveryNote}&${filterParams}`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all checkbox functionality
+        const selectAllCheckbox = document.getElementById('select-all');
+        const documentCheckboxes = document.querySelectorAll('.document-select');
+        
+        selectAllCheckbox.addEventListener('change', function() {
+            documentCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+        
+        // Print button functionality
+        const printButton = document.getElementById('print-button');
+        const printFormatModal = document.getElementById('print-format-modal');
+        const detailedPrintBtn = document.getElementById('detailed-print-btn');
+        const summaryPrintBtn = document.getElementById('summary-print-btn');
+
+        printButton.addEventListener('click', function() {
+            const selectedDocuments = [];
+            const alreadyPrinted = [];
+            
+            documentCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const documentId = checkbox.getAttribute('data-document');
+                    const isPrinted = parseInt(checkbox.getAttribute('data-printed'));
+                    
+                    selectedDocuments.push(documentId);
+                    
+                    if (isPrinted) {
+                        alreadyPrinted.push(documentId);
+                    }
+                }
+            });
+            
+            if (selectedDocuments.length === 0) {
+                alert('Molimo odaberite barem jedan dokument za printanje.');
+                return;
+            }
+            
+            let shouldPrint = true;
+            
+            if (alreadyPrinted.length > 0) {
+                shouldPrint = confirm('Neki od odabranih dokumenata su već isprintani. Želite li ih ponovno printati?');
+            }
+            
+            if (shouldPrint) {
+                // Show the custom modal instead of using confirm()
+                printFormatModal.style.display = 'flex';
+                
+                // Handle detailed print button click
+                detailedPrintBtn.onclick = function() {
+                    processPrintRequest(selectedDocuments, 'detailed');
+                    printFormatModal.style.display = 'none';
+                };
+                
+                // Handle summary print button click
+                summaryPrintBtn.onclick = function() {
+                    processPrintRequest(selectedDocuments, 'summary');
+                    printFormatModal.style.display = 'none';
+                };
+            }
+        });
+
+        // Close the modal if user clicks outside of it
+        window.addEventListener('click', function(event) {
+            if (event.target === printFormatModal) {
+                printFormatModal.style.display = 'none';
+            }
+        });
+
+        // Function to process the print request
+        function processPrintRequest(selectedDocuments, format) {
+            // Send the print request
+            fetch('/reports/print-documents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    documents: selectedDocuments
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Open print window with selected format
+                    window.open('/reports/print-preview?ids=' + selectedDocuments.join(',') + '&format=' + format, '_blank');
+                    
+                    // Refresh the page to update print status
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    alert('Greška prilikom printanja: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Došlo je do greške prilikom printanja.');
+            });
+        }
+        
+        // Show printed checkbox functionality
+        const showPrintedCheckbox = document.getElementById('show-printed');
+        
+        showPrintedCheckbox.addEventListener('change', function() {
+            // Get current URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Update the show_printed parameter
+            urlParams.set('show_printed', this.checked ? 'true' : 'false');
+            
+            // Reload the page with updated parameters
+            window.location.search = urlParams.toString();
+        });
+    });
+</script>
+    
+<style>
+    .search-container {
+        background: #ffffff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        margin-bottom: 2rem;
+    }
+
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-input {
+        width: 35%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .form-input:focus {
+        border-color: #4f46e5;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .filter-checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 6px;
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        font-size: 0.875rem;
+        color: #4b5563;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-search {
+        padding: 0.75rem 1.5rem;
+        background: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-search:hover {
+        background: #4338ca;
+        transform: translateY(-1px);
+    }
+
+    .btn-reset {
+        padding: 0.75rem 1.5rem;
+        background: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-reset:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .badge-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .badge-warning {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .badge-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f5f5f5;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Add this to your existing styles */
+    .badge-secondary {
+        background: #e8276a;
+        color: white;
+    }
+    
+     /* Add to your existing styles */
+     .print-options {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-print {
+        padding: 0.75rem 1.5rem;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-print:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+    
+    .badge-info {
+        background: #60a5fa;
+        color: white;
+    }
+    
+    /* Modal styles */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .modal-content {
+        background-color: white;
+        border-radius: 8px;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        color: #333;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-top: 10px;
+    }
+    
+    .modal-buttons button {
+        flex: 1;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-primary {
+        background-color: #4f46e5;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #4338ca;
+    }
+    
+    .btn-secondary {
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #e5e7eb;
+    }
+</style>
+
+{% endblock %}
+
+

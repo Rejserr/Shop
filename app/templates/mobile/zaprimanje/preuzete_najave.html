@@ -1,0 +1,170 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <div class="scan-header">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_menu') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2>Preuzete najave</h2>
+    </div>
+    <div class="filter-section">
+        <form method="GET" class="mobile-form">
+            <select name="delivery_note" class="form-input">
+                <option value="">Sve pošiljke</option>
+                {% for note in delivery_notes %}
+                <option value="{{ note[0] }}" {% if request.args.get('delivery_note') == note[0] %}selected{% endif %}>
+                    {{ note[0] }}
+                </option>
+                {% endfor %}
+            </select>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="show_differences" name="show_differences" 
+                       {% if request.args.get('show_differences') %}checked{% endif %}>
+                <label for="show_differences">Prikaži razlike</label>
+            </div>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="show_received" name="show_received" 
+                       {% if request.args.get('show_received') %}checked{% endif %}>
+                <label for="show_received">Prikaži zaprimljeno</label>
+            </div>
+            
+            <button type="submit" class="confirm-btn">Pretraži</button>
+        </form>
+    </div>
+      <div class="items-list">
+          {% for item in goods %}
+          <div class="item-card {% if item.received_qty > 0 %}
+                                {% if item.received_qty == item.quantity %}completed
+                                {% elif item.received_qty < item.quantity %}shortage
+                                {% elif item.received_qty > item.quantity %}excess{% endif %}
+                                {% endif %}">
+              <div class="item-header">
+                  <span class="item-code">{{ item.item_code }}</span>
+                  <span class="quantity-info">{{ item.received_qty }}/{{ item.quantity }} {{ item.uom }}</span>
+              </div>
+              <div class="item-description">{{ item.description }}</div>
+              <div class="item-details">
+                  <small>Pošiljka: {{ item.delivery_note }}</small>
+                  <small>SSCC: {{ item.sscc }}</small>
+                  <small><strong>MSI: {{ item.document_msi }}</small></strong>
+              </div>
+          </div>
+          {% endfor %}
+      </div>
+  </div>
+
+  <style>
+      .filter-section {
+          margin-bottom: 20px;
+          background: white;
+          padding: 15px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.7);
+      }
+      .mobile-container {
+          padding: 15px;
+        max-width: 100%;
+        
+    }
+
+    .scan-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .back-btn {
+        margin-right: 15px;
+        font-size: 20px;
+        color: #f6f8f8;
+    }
+
+    .filter-section {
+        margin-bottom: 20px;
+    }
+
+    .mobile-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-input {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        width: 100%;
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .confirm-btn {
+        background: #4a90e2;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        width: 100%;
+    }
+
+    .items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .item-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .item-card.completed {
+        border-left: 4px solid #28a745;
+        border-right: 4px solid #28a745;
+    }
+
+    .item-card.shortage {
+        border-left: 4px solid #dc3545;
+        border-right: 4px solid #dc3545;
+    }
+
+    .item-card.excess {
+        border-left: 4px solid #007bff;
+        border-right: 4px solid #007bff;
+    }
+
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .item-code {
+        font-weight: bold;
+    }
+
+    .quantity-info {
+        color: #0d2e53;
+    }
+
+    .item-description {
+        margin-bottom: 10px;
+        color: #666;
+    }
+
+    .item-details {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-size: 0.9em;
+        color: #888;
+    }
+</style>
+{% endblock %}

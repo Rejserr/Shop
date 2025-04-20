@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Branch{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Uredi podatke za poslovnicu</h1>
+    <form method="POST" class="form">
+        <div class="form-group">
+            <label for="branch_code">PJ</label>
+            <input type="text" id="branch_code" name="branch_code" value="{{ branch.branch_code }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="name">Naziv</label>
+            <input type="text" id="name" name="name" value="{{ branch.branch_name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="address">Adresa</label>
+            <input type="text" id="address" name="address" value="{{ branch.address }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="city">Grad</label>
+            <input type="text" id="city" name="city" value="{{ branch.city }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="contact_person">Kontakt osoba</label>
+            <input type="text" id="contact_person" name="contact_person" value="{{ branch.contact_person }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Telefon</label>
+            <input type="tel" id="phone" name="phone" value="{{ branch.phone }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ branch.email }}" required>
+        </div>
+        
+        <button type="submit" class="button">Spremi promjene</button>
+        <a href="{{ url_for('branches.index') }}" class="button secondary">Otkaži</a>
+
+    </form>
+</div>
+{% endblock %}

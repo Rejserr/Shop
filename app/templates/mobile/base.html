@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="FeroTerm Mobile Application">
+
+    <title>Mobile Zaprimanje</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile/css/mobile_combined.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/FeroTermLogo.png') }}">
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <script src="{{ url_for('static', filename='mobile/js/app.js') }}"></script>
+    <script>
+        // Register service worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/js/service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+            
+            // Monitor connectivity and notify the service worker
+            window.addEventListener('online', function() {
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'CONNECTIVITY_CHANGE',
+                        online: true
+                    });
+                }
+            });
+            
+            window.addEventListener('offline', function() {
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'CONNECTIVITY_CHANGE',
+                        online: false
+                    });
+                }
+            });
+        }
+        
+        // Ping server to keep session alive
+        function pingServer() {
+            fetch('/ping', { method: 'GET', cache: 'no-store' })
+                .catch(function(error) {
+                    console.log('Ping failed, but continuing: ', error);
+                });
+        }
+        
+        // Ping every 25 seconds to keep session alive
+        setInterval(pingServer, 25000);
+    </script>
+      
+</body>
+</html>

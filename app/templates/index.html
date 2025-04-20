@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Shops Scanner{% endblock %}
+{% block content %}
+<div class="dashboard">
+    <div class="welcome-section">
+        <h1>Dobrodošao, {{ user.full_name }}!</h1>
+        <div class="timestamp">{{ current_time }}</div>
+    </div>
+    <div class="quick-stats">
+        {% if current_user.has_permission('VIEW_USERS_STATS') %}
+        <div class="stat-card">
+            <span class="stat-number">{{ stats.users_count }}</span>
+            <span class="stat-label">Ukupno korisnika</span>
+        </div>
+        {% endif %}
+        
+        {% if current_user.has_permission('VIEW_BRANCHES_STATS') %}
+        <div class="stat-card">
+            <span class="stat-number">{{ stats.branches_count }}</span>
+            <span class="stat-label">Poslovnice</span>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_permission('VIEW_ORDERS_STATS') %}
+        <div class="stat-card">
+            <span class="stat-number">{{ stats.incoming_goods.delivery_note_count }}</span>
+            <span class="stat-label">Pošiljke za preuzimanje</span> 
+        </div>
+        {% endif %}
+
+        {% if current_user.has_permission('VIEW_DELIVERY_STATS') %}
+        <div class="stat-card">
+            <span class="stat-number">{{ stats.incoming_goods.document_msi_count }}</span>
+            <span class="stat-label">Dokumenti za preuzimanje</span>
+        </div>
+        {% endif %}
+
+        {% if current_user.has_permission('VIEW_CONNECTED_USERS') %}
+        <div class="stat-card">
+            <span class="stat-number">{{ stats.connected_users }}</span>
+            <span class="stat-label">Aktivni korisnici</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="action-buttons">
+        {% if current_user.has_permission('MANAGE_USERS_BUTTON') %}
+        <a href="{{ url_for('users.list') }}" class="button">Upravljanje korisnicima</a>
+        {% endif %}
+      
+        {% if current_user.has_permission('MANAGE_BRANCHES_BUTTON') %}
+        <a href="{{ url_for('branches.index') }}" class="button">Upravljanje poslovnicama</a>
+        {% endif %}
+      
+        {% if current_user.has_permission('VIEW_ACTIVE_USERS_BUTTON') %}
+        <a href="{{ url_for('users.connected') }}" class="button">Aktivni korisnici</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

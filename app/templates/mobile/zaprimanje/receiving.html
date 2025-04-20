@@ -1,0 +1,58 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-receiving" data-sscc="{{ sscc }}">
+    <div class="scan-header">
+        <div class="header-info">
+            <h2>SSCC: {{ sscc }}</h2>
+            <button onclick="completeReceiving()" class="complete-btn">
+                <i class="fas fa-check"></i> Complete
+            </button>
+        </div>
+    </div>
+
+    <div class="scan-section">
+        <input type="text" 
+               id="barcode-input" 
+               class="scan-input" 
+               placeholder="Scan item barcode"
+               autofocus>
+               
+        <div class="item-details" id="current-item" style="display: none;">
+            <div class="item-info">
+                <span id="item-code"></span>
+                <span id="item-description"></span>
+            </div>
+            <div class="quantity-section">
+                <div class="quantity-info">
+                    <span>Expected: <span id="expected-qty"></span></span>
+                    <span>Received: <span id="received-qty"></span></span>
+                </div>
+                <input type="number" 
+                       id="quantity-input" 
+                       class="quantity-input" 
+                       placeholder="Enter quantity"
+                       step="any">
+                <button id="confirm-qty" class="confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="items-list">
+        {% for item in items %}
+        <div class="item-card {% if item.received_qty >= item.quantity %}completed{% endif %}"
+             data-item-code="{{ item.item_code }}">
+            <div class="item-header">
+                <span class="item-code">{{ item.item_code }}</span>
+                <span class="item-status">
+                    {{ item.received_qty|default(0) }}/{{ item.quantity }} {{ item.uom }}
+                </span>
+            </div>
+            <div class="item-details">
+                <p>{{ item.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-container">
+    <h1 class="mobile-title">Status MSI dokumenta</h1>
+	<div class="back-button">
+        <a href="{{ url_for('mobile_zaprimanje.mobile_menu') }}" class="mobile-button">
+            <i class="fas fa-arrow-left"></i> Natrag
+        </a>
+    </div>
+    
+    <form method="GET" class="mobile-search-form">
+           <select name="delivery_note" class="mobile-input">
+               <option value="">Odaberi tovarni list</option>
+               {% for delivery in deliveries %}
+                   <option value="{{ delivery.delivery_note }}" 
+                           {% if delivery.delivery_note == request.args.get('delivery_note') %}selected{% endif %}>
+                       {{ delivery.delivery_note }}
+                   </option>
+               {% endfor %}
+           </select>
+        
+        <div class="mobile-checkboxes">
+            <label>
+                <input type="checkbox" name="status_filter" value="Zaprimljeno" 
+                       {% if 'Zaprimljeno' in selected_statuses %}checked{% endif %}>
+                Zaprimljen
+            </label>
+            <label>
+                <input type="checkbox" name="status_filter" value="Parcijalno"
+                       {% if 'Parcijalno' in selected_statuses %}checked{% endif %}>
+                Parcijalno
+            </label>
+            <label>
+                <input type="checkbox" name="status_filter" value="Nije zaprimljeno"
+                       {% if 'Nije zaprimljeno' in selected_statuses %}checked{% endif %}>
+                Nije zaprimljen
+            </label>
+        </div>
+        
+        <button type="submit" class="mobile-button">Pretraži</button>
+    </form>
+
+    <script>
+    function goToDocument(msi) {
+        window.location = "{{ url_for('mobile_zaprimanje.mobile_shipment_items', document_msi='') }}" + msi;
+    }
+    </script>
+
+    <div class="mobile-list">
+        {% for item in shipments %}
+        <div class="mobile-list-item" onclick="goToDocument('{{item[1]}}')" style="cursor: pointer;">
+            <div>Tovarni list: {{ item.delivery_note }}</div>
+            <div>MSI: {{ item.document_msi }}</div>
+            <div class="mobile-status 
+                {% if item.status == 'Zaprimljeno' %}status-success
+                {% elif item.status == 'Parcijalno' %}status-warning
+                {% else %}status-danger{% endif %}">
+                {{ item.status }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if not show_all and shipments|length >= 2000 %}
+    <form method="GET" class="mobile-show-all">
+        {% for status in selected_statuses %}
+        <input type="hidden" name="status_filter" value="{{ status }}">
+        {% endfor %}
+        <input type="hidden" name="delivery_note" value="{{ request.args.get('delivery_note', '') }}">
+        <input type="hidden" name="show_all" value="true">
+        <button type="submit" class="mobile-button">Prikaži sve</button>
+    </form>
+    {% endif %}
+<script>
+function goToDocument(msi) {
+    window.location = "{{ url_for('mobile_zaprimanje.mobile_shipment_items', document_msi='') }}" + msi;
+}
+</script>
+</div>
+{% endblock %}

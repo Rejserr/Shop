@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Uredi korisnika</h1>
+    <form method="POST" class="form">
+        <div class="form-group">
+            <label for="username">Korisnik</label>
+            <input type="text" id="username" name="username" value="{{ user.username }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Lozinka (Ostavi prazno polje da zadržiš postojeću lozinku)</label>
+            <input type="password" id="password" name="password">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ user.email }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="full_name">Ime i prezime</label>
+            <input type="text" id="full_name" name="full_name" value="{{ user.full_name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="branch_id">Poslovnica</label>
+            <select id="branch_id" name="branch_id" required>
+                {% for branch in branches %}
+                <option value="{{ branch.id }}" {% if branch.id == user.branch_id %}selected{% endif %}>
+                    {{ branch.branch_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="role_id">Prava</label>
+            <select id="role_id" name="role_id" required>
+                {% for role in roles %}
+                <option value="{{ role.id }}" {% if role.id == user.role_id %}selected{% endif %}>
+                    {{ role.role_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <button type="submit" class="button">Spremi promjene</button>
+        <a href="{{ url_for('users.list') }}" class="button secondary">Otkaži</a>
+    </form>
+</div>{% endblock %}

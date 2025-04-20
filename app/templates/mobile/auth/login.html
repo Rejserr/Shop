@@ -1,0 +1,36 @@
+{% extends "mobile/base.html" %}
+
+{% block content %}
+<div class="mobile-login-page">
+    <div class="mobile-login-container">
+        <img src="{{ url_for('static', filename='img/FeroTermLogo.png') }}" alt="FeroTerm Logo" class="mobile-logo">
+        <h1>Prijava korisnika</h1>
+        {% with messages = get_flashed_messages(category_filter=['login_error']) %}
+            {% if messages %}
+                <div class="error-popup">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('auth.mobile_login') }}" class="mobile-form">
+            <div class="mobile-form-group">
+                <input type="text" 
+                       id="username" 
+                       name="username" 
+                       placeholder="Korisnik"
+                       required>
+            </div>
+            <div class="mobile-form-group">
+                <input type="password" 
+                       id="password" 
+                       name="password" 
+                       placeholder="Lozinka"
+                       required>
+            </div>
+            <button type="submit" class="mobile-login-btn">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

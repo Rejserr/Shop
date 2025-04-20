@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - FT Shops</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 30px;
+        }
+        .message {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <img src="/static/img/FeroTermLogo.png" alt="FeroTerm Logo" class="logo">
+    <div class="message">
+        <h2>Trenutno ste offline</h2>
+        <p>Provjerite vašu internet vezu i pokušajte ponovno.</p>
+        <p>Aplikacija će se automatski povezati kada internet postane dostupan.</p>
+    </div>
+    <button class="btn btn-primary" onclick="checkConnection()">Pokušaj ponovno</button>
+
+    <script>
+        function checkConnection() {
+            if (navigator.onLine) {
+                window.location.reload();
+            } else {
+                alert('Još uvijek ste offline. Molimo provjerite vašu internet vezu.');
+            }
+        }
+        
+        // Listen for online event to automatically reload
+        window.addEventListener('online', function() {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>

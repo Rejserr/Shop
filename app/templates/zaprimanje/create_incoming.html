@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Create New Incoming Good</h1>
+    <form method="POST" class="form">
+        <div class="form-group">
+            <label for="delivery_note">Delivery Note</label>
+            <input type="text" id="delivery_note" name="delivery_note" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="sscc">SSCC</label>
+            <input type="text" id="sscc" name="sscc" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="sales_order">Sales Order</label>
+            <input type="text" id="sales_order" name="sales_order" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="item_code">Item Code</label>
+            <input type="text" id="item_code" name="item_code" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" name="quantity" step="0.01" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="uom">UOM</label>
+            <input type="text" id="uom" name="uom" required>
+        </div>
+        
+        <button type="submit" class="button">Create Receipt</button>
+        <a href="{{ url_for('zaprimanje.incoming_goods') }}" class="button secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

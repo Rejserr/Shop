@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Branch Management{% endblock %}
+
+{% block content %}
+<h1>Branch Management</h1>
+<a href="{{ url_for('branches.create') }}" class="button">Create New Branch</a>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for branch in branches %}
+        <tr>
+            <td>{{ branch.name }}</td>
+            <td>{{ branch.address }}</td>
+            <td>
+                <a href="{{ url_for('branches.edit', id=branch.id) }}" class="button small">Edit</a>
+                <form method="POST" action="{{ url_for('branches.delete', id=branch.id) }}" style="display: inline;">
+                    <button type="submit" class="button small danger" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

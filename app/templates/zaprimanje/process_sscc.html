@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="zaprimanje-container" data-sscc="{{ sscc }}">
+    <div class="zaprimanje-header">
+        <div class="header-actions">
+            <a href="{{ url_for('zaprimanje.receiving_menu') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button onclick="completeReceiving()" class="btn btn-success">
+                Complete Receiving
+            </button>
+            <h1>Process Items - SSCC: {{ sscc }}</h1>
+        </div>
+    </div>
+    <div class="scan-form">
+        <form method="POST" id="scanForm">
+            <div class="form-group">
+                <label for="barcode">Scan Barcode:</label>
+                <input type="text" id="barcode" name="barcode" class="form-control" autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="artikl">Artikl:</label>
+                <input type="text" id="artikl" name="artikl" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="naziv">Naziv artikla:</label>
+                <input type="text" id="naziv" name="naziv" class="form-control" readonly>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="najavljena">Najavljena količina:</label>
+                    <input type="text" id="najavljena" name="najavljena" class="form-control" readonly>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="jm">JM:</label>
+                    <input type="text" id="jm" name="jm" class="form-control" readonly>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="zaprimljeno">Zaprimljeno:</label>
+                    <input type="text" id="zaprimljeno" name="zaprimljeno" class="form-control" readonly>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="kolicina">Količina:</label>
+                    <input type="number" id="kolicina" name="kolicina" class="form-control" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Zaprimi</button>
+        </form>
+    </div>
+
+    <div class="zaprimanje-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item Code</th>
+                    <th>Barcode</th>
+                    <th>Description</th>
+                    <th>Expected Qty</th>
+                    <th>Received Qty</th>
+                    <th>Difference</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.item_code }}</td>
+                    <td>{{ item.barcode }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.received_qty }}</td>
+                    <td>{{ item.received_qty - item.quantity }}</td>
+                    <td>
+                        {% if item.quantity == item.received_qty %}
+                            <span class="badge badge-success" style="background-color: #28a745;">Zaprimljeno</span>
+                        {% elif item.received_qty > item.quantity %}
+                            <span class="badge badge-warning" style="background-color: #0056b3;">Višak</span>
+                        {% elif item.received_qty < item.quantity %}
+                            <span class="badge badge-danger" style="background-color: #dc3545;">Manjak</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    console.log('Page loaded with SSCC:', '{{ sscc }}');
+</script>
+{% endblock %}

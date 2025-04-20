@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Stavke MSI dokumenta: {{ document_msi }}</h1>
+  <a href="{{ url_for('reports.shipment_status', 
+        delivery_note=request.args.get('delivery_note'),
+        status_filter=request.args.getlist('status_filter')) }}" 
+ class="btn btn-secondary mb-3">
+  <i class="fas fa-arrow-left"></i> Natrag
+</a>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Artikl</th>
+                    <th>Naziv</th>
+                    <th>Količina</th>
+                    <th>Zaprimljeno</th>
+                    <th>Razlika</th>
+                    <th>JM</th>
+                    <th>Korisnik</th>
+                    <th>Status</th>
+                    <th>Akcija</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.item_code }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.received_qty }}</td>
+                    <td>{{ item.difference }}</td>
+                    <td>{{ item.uom }}</td>
+                    <td>{{ item.user_received }}</td>
+                    <td>
+                        {% if item.received_qty - item.quantity == 0 %}
+                            <span class="status-ok">Zaprimljeno</span>
+                        {% elif item.received_qty - item.quantity  > 0 %}
+                            <span class="status-plus">Višak</span>
+                        {% else %}
+                            <span class="status-minus">Manjak</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('zaprimanje.edit_incoming', id=item.id) }}" class="btn btn-edit btn-sm">
+                            <i class="fas fa-edit"></i> Uredi
+                        </a>
+                    </td>
+                </tr>
+                <tr class="customer-row">
+                    <td colspan="4">
+                        <strong>Kupac:</strong> {{ item.customer }} 
+                        {% if item.sales_order %}
+                            <strong>Nalog prodaje:</strong> {{ item.sales_order }}
+                        {% endif %}
+                    </td>
+                </tr>                
+                {% endfor %}
+            </tbody>
+        </table>
+    </div> 
+</div>
+{% endblock %}

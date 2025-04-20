@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Print Preview - MSI Documents</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+        }
+        
+        .print-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .print-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+        
+        .document-header {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
+        
+        .summary-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .summary-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            width: calc(50% - 20px);
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        
+        .summary-card h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .summary-card div {
+            margin-bottom: 5px;
+        }
+        
+        @media print {
+            .no-print {
+                display: none;
+            }
+            
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            
+            .summary-card {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="margin-bottom: 20px;">
+        <button onclick="window.print()">Printaj</button>
+        <button onclick="window.close()">Zatvori</button>
+    </div>
+    
+    <div class="print-header">
+        <h2>MSI Dokumenti - Izvještaj</h2>
+        <div>{{ "Detaljan ispis" if print_format == 'detailed' else "Sumarni ispis" }}</div>
+    </div>
+    
+    <div class="print-info">
+        <div>Datum ispisa: {{ print_date }}</div>
+        <div>Korisnik: {{ user }}</div>
+    </div>
+    
+    {% if print_format == 'detailed' %}
+        <!-- Detailed Print Format -->
+        {% for doc_id, document in documents.items() %}
+        <div class="document-header">
+            <h3>MSI Dokument: {{ document.document_msi }}</h3>
+            <div>Tovarni list: {{ document.delivery_note }}</div>
+            <div>Kupac: {{ document.customer }}</div>
+            <div>Primatelj: {{ document.receiver }}</div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Artikl</th>
+                    <th>Naziv</th>
+                    <th>Količina</th>
+                    <th>Zaprimljeno</th>
+                    <th>JM</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in document.document_items %}
+                <tr>
+                    <td>{{ item.item_code }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.received_qty }}</td>
+                    <td>{{ item.uom }}</td>
+                    <td>{{ item.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if not loop.last %}
+        <div class="page-break"></div>
+        {% endif %}
+        {% endfor %}
+    {% else %}
+        <!-- Summary Print Format -->
+        <div class="summary-container">
+            {% for doc_id, document in documents.items() %}
+            <div class="summary-card">
+                <h3>MSI Dokument: {{ document.document_msi }}</h3>
+                <div>Tovarni list: {{ document.delivery_note }}</div>
+                <div>Kupac: {{ document.customer }}</div>
+                <div>Primatelj: {{ document.receiver }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <script>
+        // Auto-print when the page loads
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

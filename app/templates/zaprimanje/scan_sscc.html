@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <a href="{{ url_for('zaprimanje.receiving_menu') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Natrag
+    </a>
+    <h1>Skeniraj SSCC barkod</h1>
+          <form method="POST" class="scan-form">
+              <div class="form-group">
+                  <label for="sscc">Skeniraj SSCC:</label>
+                  <input type="text" id="sscc" name="sscc" class="form-control" autofocus required>
+              </div>
+              <button type="submit" class="btn btn-primary">Pretraži</button>
+              <a href="{{ url_for('zaprimanje.pregled_sscc') }}" class="btn btn-info">Pregled SSCC</a>
+          </form>
+          {% if items %}
+    <div class="items-table mt-4">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Pošiljka</th>
+                    <th>MSI</th>
+                    <th>SSCC</th>                  
+                    <th>Artikl</th>
+                    <th>JM</th>
+                    <th>Najavljena količina</th>
+                    <th>Zaprimljena količina</th>
+                    <th>Razlika</th>
+                    <th>Kupac</th>
+                    <th>Vrsta naloga</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.delivery_note }}</td>
+                    <td>{{ item.document_msi }}</td>
+                    <td>{{ item.sscc }}</td>
+                    <td>{{ item.item_code }}</td>
+                    <td>{{ item.uom }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.received_qty }}</td>
+                    <td>{{ item.difference }}</td>
+                    <td>{{ item.customer }}</td>
+                    <td>{{ item.order_type }}</td>
+                    <td>{{ item.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="action-buttons mt-3">
+            <form method="POST" action="{{ url_for('zaprimanje.preuzmi_paletu') }}" class="d-inline">
+                <input type="hidden" name="sscc" value="{{ sscc }}">
+                <button type="submit" class="btn btn-success">Preuzimanje palete</button>
+            </form>
+
+            <a href="{{ url_for('zaprimanje.scan_items', sscc=sscc) }}" class="btn btn-primary">Nastavi zaprimanje</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}MSI API{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>MSI API Upravljanje</h1>
+    
+    <div class="card-container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Automatski ažuriraj MSI dokument</h2>
+            </div>
+            <div class="card-body">
+                <p>Prikaži i automatski ažuriraj nedostajuće MSI vrijednosti iz LVS.</p>
+                <a href="{{ url_for('msi_api.view_missing_msi') }}" class="btn btn-primary">Prikaži i ažuriraj</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>Ručno ažuriraj MSI dokument</h2>
+            </div>
+            <div class="card-body">
+                <p>Ručno ažuriraj MSI dokument za određene naloge prodaje</p>
+                <a href="{{ url_for('msi_api.manual_update') }}" class="btn btn-primary">Prikaži i ažuriraj</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .card-container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .card {
+        flex: 1;
+        min-width: 300px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+    
+    .btn:hover {
+        background-color: #0069d9;
+    }
+</style>
+{% endblock %}
