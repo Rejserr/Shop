@@ -4,6 +4,7 @@ from app.utils.navigation import get_nav_items
 from flask_migrate import Migrate
 from app.routes import zaprimanje
 from app.routes.mobile_zaprimanje import mobile_bp 
+from app.routes.backorders import bp as backorders_bp
 
 def create_app():
     app = Flask(__name__)
@@ -37,5 +38,7 @@ def create_app():
     
     from app.cli import init_permissions_command
     app.cli.add_command(init_permissions_command)
+
+    app.register_blueprint(backorders_bp, url_prefix='/backorders')
     
     return app

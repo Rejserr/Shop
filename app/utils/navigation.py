@@ -43,6 +43,12 @@ def get_nav_items(user):
             'icon': 'fas fa-database',
             'url': url_for('msi_api.index'),
             'permissions': ['NAV_MSI_API']
+        },
+        {
+            'text': 'Backorders',
+            'icon': 'fas fa-clipboard-list',
+            'url': url_for('backorders.index'),
+            'permissions': ['NAV_BACKORDERS']  # You'll need to create this permission
         }
     ]
     

@@ -10,6 +10,8 @@ def init_permissions():
         ('NAV_ROLES', 'Access to Roles Management'),
         ('NAV_ZAPRIMANJE', 'Access to Zaprimanje Management'),
         ('NAV_REPORTS', 'Access to Reports'),
+        ('NAV_MSI_API', 'Access to MSI API'),
+        ('NAV_BACKORDERS', 'Access to view and search backorders'),  # Add this line
         
         # Dashboard Stats
         ('VIEW_USERS_STATS', 'View Users Statistics'),
@@ -39,6 +41,10 @@ def init_permissions():
         ('ZAPRIMANJE_COMPLETE', 'Can complete zaprimanje'),
         ('ZAPRIMANJE_VIEW', 'Can view zaprimanje'),
         
+        # Backorders (Add these permissions for more granular control)
+        ('BACKORDERS_VIEW', 'Can view backorders'),
+        ('BACKORDERS_EXPORT', 'Can export backorders to CSV'),
+        
         # Admin
         ('ADMIN', 'Full system access')
     ]    
@@ -50,5 +56,4 @@ def init_permissions():
         else:
             permission = Permission(permission_name=perm_name, description=desc)
             db.session.add(permission)
-    
-    db.session.commit()
+        db.session.commit()

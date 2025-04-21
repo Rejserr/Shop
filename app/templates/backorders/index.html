@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Backorders{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Backorders</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Loading overlay -->
+                    <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999;">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                            <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="text-light mt-2">Loading data, please wait...</div>
+                        </div>
+                    </div>
+                    <form method="get" action="{{ url_for('backorders.index') }}" class="search-form-container" id="search-form">
+                        <div class="row">
+                            <!-- Input polje za Order Code -->
+                            <div class="search-input-group">
+                                <label for="order_code" class="search-label">Order Code:</label>
+                                <div class="input-wrapper">
+                                    <input type="text" class="search-input" id="order_code" name="order_code" 
+                                           value="{{ order_code }}" placeholder="Enter order code">
+                                    <div class="input-focus-effect"></div>
+                                </div>
+                            </div>
+                    
+                            <!-- Gumbi: Search i Export -->
+                            <div class="button-container">
+                                <button type="submit" class="button-fixed" id="search-btn" onclick="showLoading()">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                                {% if backorders and current_user.has_permission('BACKORDERS_EXPORT') %}
+                                <a href="{{ url_for('backorders.export', order_code=order_code) }}" class="button-fixed">
+                                    <i class="fas fa-file-csv"></i> Export to CSV
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>                 
+                    {% if backorders %}                    
+                      <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="backorders-table" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Nalog Prodaje</th>
+                                    <th>Kupac</th>
+                                    <th>Primatelj</th>
+                                    <th>Artikl</th>
+                                    <th>Potrebno poslati</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in backorders %}
+                                <tr>
+                                    <td>{{ item.OrderCode }}</td>
+                                    <td>{{ item.Customer }}</td>
+                                    <td>{{ item.Receiver }}</td>
+                                    <td>{{ item.ItemDescription }}</td>
+                                    <td>{{ (item.OrderedQty - item.ShippedQty)|round(2)|string|replace('.00', '') }}</td>
+                                    <td>{{ item.Status }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% elif order_code %}
+                    <div class="alert alert-info">
+                        No backorders found for the specified order code.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        Enter an order code to search for backorders.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Global function to show loading overlay
+    function showLoading() {
+        document.getElementById('loading-overlay').style.display = 'block';
+    }
+    
+    $(document).ready(function() {
+        // Initialize DataTable if we have results
+        if ($('#backorders-table').length) {
+            $('#backorders-table').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "order": [[ 3, "asc" ]], // Sort by column 4 (Artikl) in ascending order
+                "scrollY": "60vh",       // Enable vertical scrolling
+                "scrollCollapse": true,  // Enable scroll collapse
+                "columnDefs": [
+                    {
+                        "targets": 3, // Target the "Artikl" column
+                        "type": "string" // Ensure it's treated as a string for sorting
+                    },
+                    {
+                        "targets": 4, // Target the "Potrebno poslati" column
+                        "type": "num", // Ensure it's treated as a number for sorting
+                        "className": "dt-body-right" // Right-align the content
+                    }
+                ],
+                "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "language": {
+                    "search": "Pretraži:",
+                    "lengthMenu": "Prikaži _MENU_ zapisa po stranici",
+                    "info": "Prikazano _START_ do _END_ od _TOTAL_ zapisa",
+                    "infoEmpty": "Nema zapisa za prikaz",
+                    "infoFiltered": "(filtrirano od ukupno _MAX_ zapisa)",
+                    "paginate": {
+                        "first": "Prva",
+                        "last": "Zadnja",
+                        "next": "Sljedeća",
+                        "previous": "Prethodna"
+                    }
+                }
+            });
+        }
+        
+        // Auto-focus the search box when the page loads
+        $('#order_code').focus();
+        
+        // Add keyboard shortcut for quick search
+        $(document).keydown(function(e) {
+            // Ctrl+F focuses the search box
+            if (e.ctrlKey && e.keyCode === 70) {
+                e.preventDefault();
+                $('#order_code').focus();
+            }
+        });
+        
+        // Add highlighting for rows with low stock
+        $('#backorders-table tbody tr').each(function() {
+            const $row = $(this);
+            const orderedQty = parseFloat($row.find('td:eq(4)').text());
+            
+            // If remaining quantity is more than 0, highlight the row
+            if (orderedQty > 0) {
+                $row.addClass('table-warning');
+            }
+            
+            // If nothing has been shipped, highlight in red
+            if (orderedQty > 10) {
+                $row.addClass('table-danger');
+            }
+        });
+        
+        // Double-click on row to copy order code
+        $('#backorders-table tbody').on('dblclick', 'tr', function() {
+            const orderCode = $(this).find('td:first').text();
+            navigator.clipboard.writeText(orderCode)
+                .then(() => {
+                    // Show a temporary tooltip or notification
+                    alert('Order code copied: ' + orderCode);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        });
+        
+        // Show loading overlay when form is submitted
+        $('#search-form').on('submit', function() {
+            showLoading();
+        });
+        
+        // Hide loading overlay when page is fully loaded
+        $(window).on('load', function() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        });
+        
+        // Also hide loading overlay if it's still visible after a few seconds
+        setTimeout(function() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }, 5000);
+    });
+</script>
+{% endblock %}

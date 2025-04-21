@@ -1792,7 +1792,414 @@ form {
     
 }
 
+/* Loading overlay styles */
+#loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+}
+
+.spinner-border {
+    display: inline-block;
+    width: 3rem;
+    height: 3rem;
+    vertical-align: text-bottom;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+/* Fixed header DataTable styling */
+.table-responsive {
+    max-height: 70vh; /* Adjust this value based on your needs */
+    overflow-y: auto;
+}
+
+.table.dataTable {
+    width: 100% !important;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.table.dataTable thead th {
+    position: sticky;
+    top: 0;
+    background-color: #2a2c2e;
+    z-index: 10;
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+    cursor: pointer;
+}
+
+.table.dataTable thead .sorting:after,
+.table.dataTable thead .sorting_asc:after,
+.table.dataTable thead .sorting_desc:after {
+    position: absolute;
+    right: 8px;
+    display: block;
+}
+
+.table.dataTable thead .sorting:after {
+    content: "↕";
+    opacity: 0.5;
+}
+
+.table.dataTable thead .sorting_asc:after {
+    content: "↑";
+}
+
+.table.dataTable thead .sorting_desc:after {
+    content: "↓";
+}
+
+.table.dataTable tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table-striped.dataTable tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table-hover.dataTable tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+/* DataTables pagination and controls styling */
+.dataTables_wrapper .dataTables_length, 
+.dataTables_wrapper .dataTables_filter, 
+.dataTables_wrapper .dataTables_info, 
+.dataTables_wrapper .dataTables_processing, 
+.dataTables_wrapper .dataTables_paginate {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.dataTables_wrapper .dataTables_length {
+    float: left;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    float: right;
+    text-align: right;
+}
+
+.dataTables_wrapper .dataTables_info {
+    clear: both;
+    float: left;
+    padding-top: 0.755em;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    float: right;
+    text-align: right;
+    padding-top: 0.25em;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    box-sizing: border-box;
+    display: inline-block;
+    min-width: 1.5em;
+    padding: 0.5em 1em;
+    margin-left: 2px;
+    text-align: center;
+    text-decoration: none !important;
+    cursor: pointer;
+    color: #333 !important;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: #fff !important;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    color: white !important;
+    border: 1px solid #0056b3;
+    background-color: #0056b3;
+}
+
+/* Clear floats after the controls */
+.dataTables_wrapper:after {
+    visibility: hidden;
+    display: block;
+    content: "";
+    clear: both;
+    height: 0;
+}
 
 
 
 
+
+/* Fancy Search Form Styling */
+.search-form-container {
+    background: linear-gradient(145deg, #f6f7ff, #e9eeff);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    margin-bottom: 30px !important;
+}
+
+.search-form-container:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    transform: translateY(-5px);
+}
+
+.search-form-container .row {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    gap: 20px; /* Add space between rows */
+}
+
+.search-input-group {
+    margin-bottom: 0;
+}
+
+.search-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #343a40;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    transform-origin: left;
+}
+
+.input-wrapper {
+    position: relative;
+    width: fit-content; /* Ensure wrapper only takes needed space */
+}
+
+.search-input {
+    width: 250px; /* Width for approximately 15 digits */
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+    display: block; /* Ensure it respects width */
+    max-width: 240px; /* Maximum width */
+}
+
+.search-input:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    outline: none;
+}
+
+.input-focus-effect {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #4299e1, #667eea);
+    transition: width 0.3s ease;
+}
+
+.search-input:focus + .input-focus-effect {
+    width: 240px; /* Match input width */
+}
+
+.button-container {
+    display: flex;
+    gap: 15px; /* Space between buttons */
+    margin-top: 10px; /* Space between input and buttons */
+}
+
+/* Button styling */
+.button-fixed {
+    all: unset; /* Reset all styles */
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: none;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 160px; /* Fixed width for both buttons */
+    height: 40px; /* Fixed height for both buttons */
+    font-size: 14px; /* Font size for both buttons */
+    text-decoration: none; /* Remove underline from links */
+    cursor: pointer;
+}
+
+/* Search button specific styling */
+.button-container button.button-fixed {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+}
+
+.button-container button.button-fixed:hover {
+    background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(79, 70, 229, 0.25);
+}
+
+.button-container button.button-fixed:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+/* Export button specific styling */
+.button-container a.button-fixed {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.button-container a.button-fixed:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.25);
+    color: white; /* Ensure text stays white on hover */
+}
+
+.button-container a.button-fixed:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+/* Animation for form elements on page load */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-form-container {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.search-input-group {
+    animation: fadeInUp 0.6s ease-out 0.1s;
+    animation-fill-mode: both;
+}
+
+.button-container button.button-fixed {
+    animation: fadeInUp 0.6s ease-out 0.2s;
+    animation-fill-mode: both;
+}
+
+.button-container a.button-fixed {
+    animation: fadeInUp 0.6s ease-out 0.3s;
+    animation-fill-mode: both;
+}
+
+/* Osiguraj jednako ponašanje za <a> i <button> */
+.button-fixed i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+
+/* Wrapper za datatable kontrolne elemente */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+/* Dropdown za broj zapisa */
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background-color: #f9f9f9;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.dataTables_wrapper .dataTables_length select:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* Search input */
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background-color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+    margin-left: 0.5rem;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* Info tekst */
+.dataTables_wrapper .dataTables_info {
+    color: #555;
+    padding-top: 8px;
+}
+
+/* Paginacija */
+.dataTables_wrapper .dataTables_paginate {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background-color: #e9eeff;
+    border: none;
+    font-size: 0.9rem;
+    color: #333;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #6366f1;
+    color: white !important;
+    font-weight: bold;
+}
